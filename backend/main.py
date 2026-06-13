@@ -1,20 +1,27 @@
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Dict, Optional
+from dotenv import load_dotenv
 from calculations import calculate_cap_table, get_waterfall_history, calculate_exit_waterfall, generate_cap_table_csv
 from models import RoundOverride
 
-app = FastAPI(title="Cap Table Simulator API")
+load_dotenv()
+
+API_TITLE       = os.getenv("API_TITLE", "Cap Table Simulator API")
+API_VERSION     = os.getenv("API_VERSION", "1.0.0")
+ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000").split(",")
+
+app = FastAPI(title=API_TITLE, version=API_VERSION)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 class CapTableRequest(BaseModel):
     overrides: Dict[str, RoundOverride]
